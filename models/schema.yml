@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: raw
+    database: BFSI_DB
+    schema: RAW
+    tables:
+      - name: RAW_CUSTOMERS
+      - name: RAW_ACCOUNTS
+      - name: RAW_TRANSACTIONS
+
+models:
+  - name: fact_transactions
+    tests:
+      - not_null:
+          column_name: transaction_id
+      - unique:
+          column_name: transaction_id
