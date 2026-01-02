@@ -6,13 +6,13 @@
 
 {%- set v_dbt_job_name = 'transaction_fct' -%}
 
--- Step 1: Batch control
+--Batch control
 {%- set v_watermark = process_batch_control(v_dbt_job_name) -%}
 {%- set v_lwm = v_watermark[0] -%}
 {%- set v_hwm = v_watermark[1] -%}
 {%- set v_process_id = v_watermark[2] -%}
 
--- Step 2: Success update SQL
+--Success update SQL
 {% set v_sql_upd_success_batch %}
     call {{ target.database }}.CONTROL.batch_success_proc('transaction_fct')
 {% endset %}
@@ -20,7 +20,7 @@
 {{ config(post_hook=v_sql_upd_success_batch) }}
 
 
--- Step 3: Fact load
+--Fact load
 select
     t.transaction_id,
     t.account_id,
