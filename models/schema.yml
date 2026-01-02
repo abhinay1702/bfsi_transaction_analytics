@@ -9,10 +9,12 @@ sources:
       - name: RAW_ACCOUNTS
       - name: RAW_TRANSACTIONS
 
+
 models:
-  - name: fact_transactions
-    tests:
-      - not_null:
-          column_name: transaction_id
-      - unique:
-          column_name: transaction_id
+  - name: transaction_fct
+    columns:
+      - name: transaction_id
+        tests:
+          - not_null
+          - unique
+
