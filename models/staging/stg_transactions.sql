@@ -1,9 +1,13 @@
+{{ config(
+    materialized='view'
+) }}
+
 select
-  transaction_id,
-  account_id,
-  customer_id,
-  transaction_date,
-  transaction_amount,
-  transaction_type,
-  last_updated_ts
+    transaction_id,
+    account_id,
+    customer_id,
+    transaction_amount,
+    transaction_status as status,
+    transaction_date,
+    last_updated_ts,
 from {{ source('raw','RAW_TRANSACTIONS') }}

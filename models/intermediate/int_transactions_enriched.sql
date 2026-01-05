@@ -4,7 +4,11 @@ select
   t.customer_id,
   t.transaction_date,
   t.transaction_amount,
-  t.transaction_type,
+  case
+        when t.transaction_amount < 0 then 'REFUND'
+        when t.status = 'FAILED' then 'FAILED'
+        else 'SUCCESS'
+    end as transaction_type,
   c.city,
   a.account_type,
   t.last_updated_ts

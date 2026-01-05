@@ -18,3 +18,12 @@ models:
           - not_null
           - unique
 
+  - name: stg_transactions
+    columns:
+      - name: transaction_id
+        tests:
+          - not_null
+          - unique
+      - name: transaction_amount
+        tests:
+          - not_null
