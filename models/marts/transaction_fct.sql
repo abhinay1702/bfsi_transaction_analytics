@@ -1,7 +1,8 @@
 {{ config(
     materialized='incremental',
     incremental_strategy='merge',
-    unique_key='transaction_id'
+    unique_key='transaction_id',
+     cluster_by=['last_updated_ts']
 ) }}
 
 {%- set v_dbt_job_name = 'transaction_fct' -%}
