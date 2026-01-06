@@ -21,23 +21,32 @@
 {{ config(post_hook=v_sql_upd_success_batch) }}
 
 
---Fact load
-select
-    t.transaction_id,
-    t.account_id,
-    t.customer_id,
-    t.transaction_amount,
-    t.transaction_type,
-    t.transaction_date,
-    t.last_updated_ts,
+with src as (
 
-    -- batch & audit columns
-    '{{ process_id }}' as dw_process_id,
+    select
+        t.*,
+        row_number() over (
+            partition by transaction_id
+            order by last_updated_ts desc
+        ) as rn
+    from {{ ref('int_transactions_enriched') }} t
+)
+
+select
+    transaction_id,
+    account_id,
+    customer_id,
+    transaction_amount,
+    transaction_type,
+    transaction_date,
+    last_updated_ts,
+
+    '{{ v_process_id }}' as dw_process_id,
     current_timestamp as dw_load_ts
 
-from {{ ref('int_transactions_enriched') }} t
+from src
+where rn = 1
 
 {% if is_incremental() %}
-where t.last_updated_ts > '{{ v_lwm }}'
-  and t.last_updated_ts <= '{{ v_hwm }}'
+  and last_updated_ts > '{{ v_lwm }}'
 {% endif %}
