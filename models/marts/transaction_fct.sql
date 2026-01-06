@@ -38,6 +38,7 @@ select
     customer_id,
     transaction_amount,
     transaction_type,
+    city,
     transaction_date,
     last_updated_ts,
 

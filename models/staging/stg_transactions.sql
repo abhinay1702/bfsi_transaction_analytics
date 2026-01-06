@@ -8,7 +8,6 @@ select
     customer_id,
     transaction_amount,
     transaction_status as status,
-    city
     transaction_date,
     last_updated_ts,
 from {{ source('raw','RAW_TRANSACTIONS') }}
