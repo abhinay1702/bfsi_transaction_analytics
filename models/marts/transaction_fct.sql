@@ -1,8 +1,16 @@
+{% set job_name = 'transaction_fct' %}
+{% set wm = process_batch_control(job_name) %}
+{% set lwm = wm[0] %}
+{% set hwm = wm[1] %}
+{% set process_id = wm[2] %}
+
+
 {{ config(
     materialized='incremental',
     incremental_strategy='merge',
     unique_key='transaction_id',
-    cluster_by=['transaction_date']
+    cluster_by=['transaction_date'],
+     post_hook="{{ batch_success('transaction_fct') }}"
 ) }}
 
 with src as (
@@ -12,6 +20,11 @@ with src as (
                order by last_updated_ts desc
            ) as rn
     from {{ ref('int_transactions_enriched') }}
+
+    {% if is_incremental() %}
+      where last_updated_ts > '{{ v_lwm }}'
+        and last_updated_ts <= '{{ v_hwm }}'
+    {% endif %}
 )
 
 select
