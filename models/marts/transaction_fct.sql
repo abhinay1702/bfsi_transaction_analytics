@@ -2,51 +2,46 @@
     materialized='incremental',
     incremental_strategy='merge',
     unique_key='transaction_id',
-     cluster_by=['last_updated_ts']
+    cluster_by=['transaction_date']
 ) }}
 
-{%- set v_dbt_job_name = 'transaction_fct' -%}
-
---Batch control
-{%- set v_watermark = process_batch_control(v_dbt_job_name) -%}
-{%- set v_lwm = v_watermark[0] -%}
-{%- set v_hwm = v_watermark[1] -%}
-{%- set v_process_id = v_watermark[2] -%}
-
---Success update SQL
-{% set v_sql_upd_success_batch %}
-    call {{ target.database }}.CONTROL.batch_success_proc('transaction_fct')
-{% endset %}
-
-{{ config(post_hook=v_sql_upd_success_batch) }}
-
-
 with src as (
-
-    select
-        t.*,
-        row_number() over (
-            partition by transaction_id
-            order by last_updated_ts desc
-        ) as rn
-    from {{ ref('int_transactions_enriched') }} t
+    select *,
+           row_number() over (
+               partition by transaction_id
+               order by last_updated_ts desc
+           ) as rn
+    from {{ ref('int_transactions_enriched') }}
 )
 
 select
     transaction_id,
     account_id,
     customer_id,
+    transaction_date,
     transaction_amount,
     transaction_type,
-    transaction_date,
+    transaction_status,
+    payment_method,
+    transaction_channel,
+    currency_code,
+    merchant_category,
+    account_type,
+    city,
+    state,
+    created_ts,
     last_updated_ts,
 
-    '{{ v_process_id }}' as dw_process_id,
-    current_timestamp as dw_load_ts
+    -- metadata
+    '{{ invocation_id }}' as dw_process_id,
+    current_timestamp     as dw_load_ts,
+    'TXN_APP'             as dw_source_system,
+    'ACTIVE'              as dw_record_status
 
 from src
 where rn = 1
 
 {% if is_incremental() %}
-  and last_updated_ts > '{{ v_lwm }}'
+  and last_updated_ts >
+      (select coalesce(max(last_updated_ts),'1900-01-01') from {{ this }})
 {% endif %}
