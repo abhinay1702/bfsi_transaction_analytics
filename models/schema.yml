@@ -2,29 +2,35 @@ version: 2
 
 sources:
   - name: raw
-    database: BFSI_DB         
-    schema: RAW                
+    database: BFSI_DB
+    schema: RAW
     tables:
       - name: raw_transactions
       - name: raw_customers
       - name: raw_accounts
 
-
 models:
   - name: customer_dim
     columns:
       - name: customer_id
-        tests: [unique, not_null]
+        tests:
+          - not_null
+          - unique
 
   - name: account_dim
     columns:
       - name: account_id
-        tests: [unique, not_null]
+        tests:
+          - not_null
+          - unique
 
   - name: transaction_fct
     columns:
       - name: transaction_id
-        tests: [unique, not_null]
+        tests:
+          - not_null
+          - unique
+
       - name: customer_id
         tests:
           - relationships:
