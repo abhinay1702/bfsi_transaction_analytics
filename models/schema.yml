@@ -14,25 +14,32 @@ models:
     columns:
       - name: customer_id
         tests:
-          - not_null
-          - unique
+          - not_null:
+              arguments: {}
+          - unique:
+              arguments: {}
 
   - name: account_dim
     columns:
       - name: account_id
         tests:
-          - not_null
-          - unique
+          - not_null:
+              arguments: {}
+          - unique:
+              arguments: {}
 
   - name: transaction_fct
     columns:
       - name: transaction_id
         tests:
-          - not_null
-          - unique
+          - not_null:
+              arguments: {}
+          - unique:
+              arguments: {}
 
       - name: customer_id
         tests:
           - relationships:
               to: ref('customer_dim')
               field: customer_id
+              arguments: {}
